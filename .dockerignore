@@ -1,0 +1,7 @@
+.git
+**/.venv
+**/__pycache__
+**/*.pyc
+riego_bigdata/data
+riego_bigdata/arduino
+**/.env

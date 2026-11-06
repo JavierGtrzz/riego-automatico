@@ -1,0 +1,6 @@
+pyserial>=3.5
+requests>=2.31
+pyspark==3.5.3
+pandas>=2.0
+pyarrow>=14
+streamlit>=1.37

@@ -1,0 +1,6 @@
+.venv/
+__pycache__/
+*.pyc
+.env
+riego_bigdata/data/**
+!riego_bigdata/data/.gitkeep

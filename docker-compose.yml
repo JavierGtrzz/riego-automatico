@@ -1,0 +1,93 @@
+# Plataforma de riego. El sketch del Arduino no va en un contenedor:
+# se carga a mano y, si el USB está en esta máquina, el servicio `riego`
+# lo abre con el perfil `arduino`.
+#
+#   docker compose up -d --build
+#   docker compose --profile arduino up -d --build    # incluye la ingesta serie
+
+name: riego
+
+services:
+  clima:
+    build: .
+    image: riego-bigdata
+    pull_policy: missing
+    init: true
+    restart: unless-stopped
+    command: ["python", "ingesta/clima_ingesta.py"]
+    volumes:
+      - ./riego_bigdata/data:/app/data
+
+  streaming:
+    image: riego-bigdata
+    pull_policy: missing
+    init: true
+    restart: unless-stopped
+    command: ["python", "spark/streaming_humedad.py"]
+    volumes:
+      - ./riego_bigdata/data:/app/data
+
+  batch:
+    image: riego-bigdata
+    pull_policy: missing
+    init: true
+    restart: unless-stopped
+    environment:
+      BATCH_INTERVAL_S: ${BATCH_INTERVAL_S:-3600}
+    command:
+      - sh
+      - -c
+      - |
+        while true; do
+          python spark/batch_analisis.py || echo "batch terminó con error; se reintenta"
+          sleep "$${BATCH_INTERVAL_S:-3600}"
+        done
+    volumes:
+      - ./riego_bigdata/data:/app/data
+
+  dashboard:
+    image: riego-bigdata
+    pull_policy: missing
+    init: true
+    restart: unless-stopped
+    command:
+      - streamlit
+      - run
+      - dashboard/app.py
+      - --server.address=0.0.0.0
+      - --server.port=8501
+      - --server.headless=true
+      - --browser.gatherUsageStats=false
+    ports:
+      - "8501:8501"
+    volumes:
+      - ./riego_bigdata/data:/app/data
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8501/_stcore/health')",
+        ]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 25s
+
+  # Ingesta del sensor y órdenes de riego. El Arduino se conecta por USB al host.
+  riego:
+    profiles: ["arduino"]
+    image: riego-bigdata
+    pull_policy: missing
+    init: true
+    restart: unless-stopped
+    command: ["python", "ingesta/riego_ingesta.py"]
+    environment:
+      PUERTO_SERIAL: /dev/ttyACM0
+    devices:
+      - ${SERIAL_DEVICE:-/dev/ttyACM0}:/dev/ttyACM0
+    group_add:
+      - "${DIALOUT_GID:-20}"
+    volumes:
+      - ./riego_bigdata/data:/app/data
