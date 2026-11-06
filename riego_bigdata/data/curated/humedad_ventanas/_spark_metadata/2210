@@ -1,0 +1,3 @@
+v1
+{"path":"file:///app/data/curated/humedad_ventanas/part-00000-20d21e82-a38a-4982-a27f-c21e1928c87e-c000.snappy.parquet","size":955,"isDir":false,"modificationTime":1793984603167,"blockReplication":1,"blockSize":33554432,"action":"add"}
+{"path":"file:///app/data/curated/humedad_ventanas/part-00003-f23712a6-cfa9-48a0-ae82-4bc96a540ae0-c000.snappy.parquet","size":2398,"isDir":false,"modificationTime":1793984603349,"blockReplication":1,"blockSize":33554432,"action":"add"}

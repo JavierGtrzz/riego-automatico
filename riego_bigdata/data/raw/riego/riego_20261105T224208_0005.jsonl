@@ -1,0 +1,2 @@
+{"ts": "2026-11-05T22:42:06Z", "planta": "lechuga", "evento": "RIEGO_CMD", "duracion_s": 3, "humedad_previa": 14.2}
+{"ts": "2026-11-05T22:42:06Z", "planta": "lechuga", "evento": "RIEGO_ON", "duracion_s": null, "humedad_previa": null}
